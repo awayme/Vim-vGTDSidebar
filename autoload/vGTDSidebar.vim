@@ -226,8 +226,8 @@ endfunction
 "}}}
 "function! s:getSidebarWinNum(){{{
 function! s:getSidebarWinNum()
-    if exists("t:SidebarBufName")
-        return bufwinnr(t:SidebarBufName)
+    if exists("t:vGTDSidebar_SidebarBufName")
+        return bufwinnr(t:vGTDSidebar_SidebarBufName)
     else
         return -1
     endif
@@ -283,10 +283,10 @@ function! s:createSidebarWin()
     if !exists('t:SidebarOpened')
         let t:SidebarOpened = 1
         silent! exec splitLocation . 'vertical ' . splitSize . ' new'
-        silent! exec "edit " . t:SidebarBufName
+        silent! exec "edit " . t:vGTDSidebar_SidebarBufName
     else
         silent! exec splitLocation . 'vertical ' . splitSize . ' split'
-        silent! exec "buffer " . t:SidebarBufName
+        silent! exec "buffer " . t:vGTDSidebar_SidebarBufName
     endif
 
     setlocal winfixwidth
