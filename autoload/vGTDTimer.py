@@ -107,8 +107,9 @@ class VimTimer(RoTimer):
     def stopLog(self):
         if self.mode == self.mode_flag['timer']:
             self.cmdStop()
-            newline = re.sub(r'@stp', '', self.vim_buffer[self.task_row])
-            self.vim_buffer[self.task_row] = newline
+            self.__removeTag('@stp')
+            # newline = re.sub(r'@stp', '', self.vim_buffer[self.task_row])
+            # self.vim_buffer[self.task_row] = newline
 
         if self.mode == self.mode_flag['countdown']:
             p = self.cur_line.find('@id')
@@ -124,12 +125,19 @@ class VimTimer(RoTimer):
             # line = self.vim_buffer[self.task_row]
             # newline = re.sub(r'\/.*?\)', '/' + tstr + ')', line)
             self.vim_buffer[self.task_row] = newline
+            self.__removeTag('@stp')
 
     def pauseLog(self):
         self.cmdPause()
 
     def resumeLog(self):
+        self.__removeTag('@pse ')
         self.cmdResume()
+        self.__removeTag('@rsm ')
+
+    def __removeTag(self, tag):
+        newline = self.vim_buffer[self.task_row].replace(tag, '')
+        self.vim_buffer[self.task_row] = newline
 
 class VimTimerHelper(VimTimer):
     def __init__(self):
@@ -172,13 +180,13 @@ class VimTimerHelper(VimTimer):
             self.__aft_countdown()
 
         if line.find('@stt') > -1:
-            print 'find stt'
-        elif line.find('@pse') > -1:
-            print 'find pse'
-            VimTimer.pauseLog(self)
+            print 'Error:find stt'
         elif line.find('@rsm') > -1:
             print 'find rsm'
             VimTimer.resumeLog(self)
+        elif line.find('@pse') > -1:
+            print 'find pse'
+            VimTimer.pauseLog(self)
         elif line.find('@stp') > -1:
             print 'find stp'
             VimTimer.stopLog(self)
