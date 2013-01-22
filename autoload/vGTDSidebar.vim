@@ -20,7 +20,11 @@ endif
 "}}}
 
 "default mapping{{{
-noremap <silent> <leader>g :call vGTDSidebar#VGTD_toggleSidebar()<CR>
+" noremap <silent><buffer> <leader>n :call vGTDSidebar#VGTD_toggleSidebar()<CR>
+function! vGTDSidebar#VGTD_patch()
+    return '^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$'
+endfunction
+noremap <silent><buffer> <leader>n :execute 'Bsgrep!' . vGTDSidebar#VGTD_patch()<CR>
 "}}}
 
 "internal functions{{{
@@ -32,7 +36,7 @@ endfunction
 
 function! s:getChineseWeekNo()
     let eng_wn = strftime("%U", localtime())
-    return s:getChineseWeekDayNo() == 7 ? eng_wn - 1 : eng_wn
+    return printf("%02d", (s:getChineseWeekDayNo() == 7 ? eng_wn - 1 : eng_wn))
 endfunction
 
 function! s:getChineseYear()
@@ -72,40 +76,60 @@ function! s:defaultMapping()
     "command! -range GtDone :<line1>,<line2>call taskpaper#toggle_tag('done', taskpaper#date())
     nnoremap <unique> <buffer> <localleader>td :GtDone<CR>
 
-    command! -range GtDue :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr())
-    nnoremap <unique> <buffer> <localleader>tn :GtDue<CR>
+    " command! -range GtDue :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr())
+    " nnoremap <unique> <buffer> <localleader>tn :GtDue<CR>
+
+    command! -range GtStart :<line1>,<line2>call taskpaper#add_tag('stt','')
+    command! -range GtPause :<line1>,<line2>call taskpaper#add_tag('pse','')
+    command! -range GtResume :<line1>,<line2>call taskpaper#add_tag('rsm','')
+    command! -range GtStop :<line1>,<line2>call taskpaper#add_tag('stp','')
+
+    command! -range GtDueToday :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr() . '+' . s:getChineseWeekDayNo())
+    nnoremap <unique> <buffer> <localleader>tn :GtDueToday<CR>
+
+    command! -range GtDueTomorrow :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr() . '+' . (s:getChineseWeekDayNo() + 1))
+    nnoremap <unique> <buffer> <localleader>to :GtDueTomorrow<CR>
 
     command! -range GtDueDay :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr(input('Value: ')))
     nnoremap <unique> <buffer> <localleader>tnd :GtDueDay<CR>
 
-    command! -range GtPriority :<line1>,<line2>call taskpaper#add_tag('priority')
-    nnoremap <unique> <buffer> <localleader>tpp :GtPriority<CR>
-    command! -range GtPriority1 :<line1>,<line2>call taskpaper#add_tag('priority','1')
-    command! -range GtPriority2 :<line1>,<line2>call taskpaper#add_tag('priority','2')
-    command! -range GtPriority3 :<line1>,<line2>call taskpaper#add_tag('priority','3')
-    command! -range GtPriority4 :<line1>,<line2>call taskpaper#add_tag('priority','4')
-    command! -range GtPriority5 :<line1>,<line2>call taskpaper#add_tag('priority','5')
+    " command! -range GtPriority :<line1>,<line2>call taskpaper#add_tag('priority')
+    " nnoremap <unique> <buffer> <localleader>tpp :GtPriority<CR>
+    " command! -range GtPriority1 :<line1>,<line2>call taskpaper#add_tag('priority','1')
+    " command! -range GtPriority2 :<line1>,<line2>call taskpaper#add_tag('priority','2')
+    " command! -range GtPriority3 :<line1>,<line2>call taskpaper#add_tag('priority','3')
+    " command! -range GtPriority4 :<line1>,<line2>call taskpaper#add_tag('priority','4')
+    " command! -range GtPriority5 :<line1>,<line2>call taskpaper#add_tag('priority','5')
 
-    command! -range GtShome :<line1>,<line2>call taskpaper#toggle_tag('status', 'home')
-    nnoremap <unique> <buffer> <localleader>th :GtShome<CR>
+    command! -range GtEtiny :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'tiny')
+    nnoremap <unique> <buffer> <localleader>tt :GtEtiny<CR>
 
-    command! -range GtSgoout :<line1>,<line2>call taskpaper#toggle_tag('status', 'goout')
-    nnoremap <unique> <buffer> <localleader>tg :GtSgoout<CR>
+    command! -range GtEmedium :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'medium')
+    nnoremap <unique> <buffer> <localleader>tm :GtEmedium<CR>
 
-    command! -range GtSpc :<line1>,<line2>call taskpaper#toggle_tag('status', 'pc')
-    nnoremap <unique> <buffer> <localleader>tp :GtSpc<CR>
+    command! -range GtEhuge :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'huge')
+    nnoremap <unique> <buffer> <localleader>th :GtEhuge<CR>
 
-    command! -range GtSonline :<line1>,<line2>call taskpaper#toggle_tag('status', 'online')
-    nnoremap <unique> <buffer> <localleader>to :GtSonline<CR>
+    " command! -range GtShome :<line1>,<line2>call taskpaper#toggle_tag('status', 'home')
+    " nnoremap <unique> <buffer> <localleader>th :GtShome<CR>
 
-    command! -range GtSany :<line1>,<line2>call taskpaper#toggle_tag('status', 'anywhere')
-    nnoremap <unique> <buffer> <localleader>ta :GtSany<CR>
+    " command! -range GtSgoout :<line1>,<line2>call taskpaper#toggle_tag('status', 'goout')
+    " nnoremap <unique> <buffer> <localleader>tg :GtSgoout<CR>
 
-    command! -range GtScall :<line1>,<line2>call taskpaper#toggle_tag('status', 'call')
-    nnoremap <unique> <buffer> <localleader>tc :GtScall<CR>
+    " command! -range GtSpc :<line1>,<line2>call taskpaper#toggle_tag('status', 'pc')
+    " nnoremap <unique> <buffer> <localleader>tp :GtSpc<CR>
 
-    command! -range GtStar :<line1>,<line2>call taskpaper#toggle_tag('~', '')
-    nnoremap <unique> <buffer> <localleader>ts :GtStar<CR>
+    " command! -range GtSonline :<line1>,<line2>call taskpaper#toggle_tag('status', 'online')
+    " nnoremap <unique> <buffer> <localleader>to :GtSonline<CR>
+
+    " command! -range GtSany :<line1>,<line2>call taskpaper#toggle_tag('status', 'anywhere')
+    " nnoremap <unique> <buffer> <localleader>ta :GtSany<CR>
+
+    " command! -range GtScall :<line1>,<line2>call taskpaper#toggle_tag('status', 'call')
+    " nnoremap <unique> <buffer> <localleader>tc :GtScall<CR>
+
+    " command! -range GtStar :<line1>,<line2>call taskpaper#toggle_tag('~', '')
+    " nnoremap <unique> <buffer> <localleader>ts :GtStar<CR>
 
     " command! GfAll              :execute "BstermPri! NextAll"
     " nnoremap <unique> <buffer> <localleader>fl :GfAll<CR>
@@ -186,42 +210,63 @@ endfunction
 "function! s:renderFilterNames(){{{
 function! s:renderFilterNames()
     setlocal modifiable
+    "let filter_keys = sort(keys(g:v_GTD_filter))
 
-    let filter_keys = sort(keys(g:v_GTD_filter))
-    for key in filter_keys
-        call setline(index(filter_keys, key)+1, key)
-        "call cursor(line(".")+1, col("."))
+    let i = 0
+    let filter_group = keys(g:v_GTD_filter)
+    for filter_group_key in filter_group
+        "echo filter_group_key
+        let filter_keys = sort(keys(g:v_GTD_filter[filter_group_key]))
+        let i = i + 1
+        call setline(i, filter_group_key)
+        for filter in filter_keys
+            call setline((i + index(filter_keys, filter) + 1), "\t" . filter)
+        endfor
+        let i = i + len(filter_keys)
     endfor
 
     setlocal nomodifiable
 endfunction
+
 "}}}
 "function! s:applyFilter(filter_name){{{
 function! s:applyFilter(filter_name)
-    if has_key(g:v_GTD_filter, a:filter_name)
-        let dic_filter = g:v_GTD_filter[a:filter_name]['filter']
-        for key in dic_filter
-            "echo "Bsfilter " . key
-            execute 'Bsfilter ' . key
-        endfor
-    else
-        echo a:filter_name . " can't be found"
-    endif
+
+    let filter_group = keys(g:v_GTD_filter)
+    for filter_group_key in filter_group
+        " let filter_keys = sort(keys())
+        " for filter in filter_keys
+        "     
+        " endfor
+        if has_key(g:v_GTD_filter[filter_group_key], a:filter_name)
+            let dic_filter = g:v_GTD_filter[filter_group_key][a:filter_name]['filter']
+            "echo g:v_GTD_filter[filter_group_key][a:filter_name]
+            for key in dic_filter
+                execute 'Bsfilter ' . key
+            endfor
+        "else
+        "    echo a:filter_name . " can't be found"
+        endif
+    endfor
 endfunction
 "}}}
 "function! s:getBsgrepPattern(filter_name){{{
 function! s:getBsgrepPattern(filter_name)
-    if has_key(g:v_GTD_filter, a:filter_name)
-        let dic_grep = g:v_GTD_filter[a:filter_name]['grep']
-        for key in dic_grep
-            "let pt = '^\(.*@' . key . '\)\@!.*'
-            let pt = key
-        endfor
-        return pt
-    else
-        echo a:filter_name . " can't be found"
-        return ''
-    endif
+    let filter_group = keys(g:v_GTD_filter)
+    for filter_group_key in filter_group
+        if has_key(g:v_GTD_filter[filter_group_key], a:filter_name)
+            let dic_grep = g:v_GTD_filter[filter_group_key][a:filter_name]['grep']
+            "echo g:v_GTD_filter[filter_group_key][a:filter_name]
+            "echo dic_grep
+            for key in dic_grep
+                let pt = key
+            endfor
+            return pt
+        " else
+        "     echo a:filter_name . " can't be found"
+        "     return ''
+        endif
+    endfor
 endfunction
 "}}}
 "function! s:getSidebarWinNum(){{{
@@ -296,6 +341,8 @@ endfunction
 "function! s:setCommonBufOptions(){{{
 function! s:setCommonBufOptions()
     "throwaway buffer options
+    "setlocal filetype=vo_base
+
     setlocal noswapfile
     setlocal buftype=nofile
     setlocal bufhidden=hide
@@ -315,7 +362,7 @@ endfunction
 "}}}
 "function! s:bindMappings(){{{
 function! s:bindMappings()
-    noremap <buffer> <Enter> :call vGTDSidebar#VGTD_RunPattern()<CR>
+    noremap <silent><buffer> <Enter> :call vGTDSidebar#VGTD_RunPattern()<CR>
 endfunction
 "}}}
 "function! s:calDone(line){{{
@@ -372,6 +419,13 @@ endf
 
 "functions exported{{{
 "concealing done tasks by default{{{
+function! vGTDSidebar#VGTD_ConcealInline(expr)
+    "exe ":syntax match " . w:matchgroup . " \"" . a:expr . "\"" . " conceal containedin = ALL"
+    exe ":syntax match " . t:vGTDSidebar_ConcealMatchGroupName . " \"" . a:expr . "\"" . " conceal cchar= containedin = ALL"
+    set conceallevel=1
+    set concealcursor=c
+endfunction
+
 function! vGTDSidebar#VGTD_ConcealLine(expr)
     "exe ":syntax match " . w:matchgroup . " \"" . a:expr . "\"" . " conceal containedin = ALL"
     exe ":syntax match " . t:vGTDSidebar_ConcealMatchGroupName . " \"" . a:expr . "\"" . " conceal cchar= containedin = ALL"
@@ -389,7 +443,6 @@ function! vGTDSidebar#VGTD_RunPattern()
     let expt = s:getBsgrepPattern(pt_str)
     if expt != ''
         wincmd w
-        "echo getline(line("."))
         execute "Bsgrep! " . expt
         call s:applyFilter(pt_str)
     endif
@@ -412,6 +465,21 @@ endfunction
 function! vGTDSidebar#VGTD_initEnviron()
     call s:defaultMapping()
     call vGTDSidebar#VGTD_ConcealLine(".*@done.*")
+    call vGTDSidebar#VGTD_ConcealInline("@id(.*)")
+    " call vGTDSidebar#VGTD_ConcealInline("@stt(.*)")
+    " call vGTDSidebar#VGTD_ConcealInline("@pse(.*)")
+    " call vGTDSidebar#VGTD_ConcealInline("@rsm(.*)")
+    " call vGTDSidebar#VGTD_ConcealInline("@stp(.*)")
+
+    set foldtext=vGTDSidebar#VGTD_MyFoldText()
+    " source vGTDpy
+endfunction
+
+function! vGTDSidebar#VGTD_MyFoldText()
+    let l:foldtext = MyFoldText()
+    let l:foldtext = substitute(l:foldtext,'@id(.\{-})','','g')
+    "echo l:foldtext
+    return l:foldtext
 endfunction
 "}}}
 "}}}
@@ -419,42 +487,154 @@ endfunction
 "default filter setting{{{
 if !exists("g:v_GTD_filter")
     let g:v_GTD_filter = {
-                \ 'Next(All)' : {
-                    \ 'filter': [],
-                    \ 'grep': ['^.*@due\(.*@done\)\@!.*$']},
-                \ '*Starred' : {
-                    \ 'filter': ['\~'],
-                    \ 'grep': ['^.*@due\(.*@done\)\@!.*$']},
-                \ 'Next All Today' : {
-                    \ 'filter': [],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ '@online' : {
-                    \ 'filter': ['@status(online)'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ '@home' : {
-                    \ 'filter': ['@status(home)'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ '@goout' : {
-                    \ 'filter': ['@status(goout)'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ '@pc' : {
-                    \ 'filter': ['@status(pc)'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ '@anywhere' : {
-                    \ 'filter': ['@status(anywhere)'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ '@call' : {
-                    \ 'filter': ['@status(call)'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ '@none' : {
-                    \ 'filter': ['^\(.*@status\)\@!.*'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ 'no priority' : {
-                    \ 'filter': ['^\(.*@priority\)\@!.*'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']},
-                \ 'This Week Pi>=3' : {
-                    \ 'filter': ['@priority(\(1\|2\|3\))'],
-                    \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']}
-                \ }
+                \ 'Status' : 
+                \ {
+                    \ 'Next(All)' :
+                        \ {
+                        \ 'filter': [],
+                        \ 'grep': ['^.*@due\(.*@done\)\@!.*$']
+                        \ },
+                    \ '*Starred' : 
+                        \ {
+                        \ 'filter': ['\~'],
+                        \ 'grep': ['^.*@due\(.*@done\)\@!.*$']
+                        \ },
+                    \ 'Today All' : 
+                        \ {
+                        \ 'filter': [],
+                        \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                        \ }
+                 \ }
+             \ }
+                " \ },
+                " \ 'Context' : 
+                " \ {
+                "     \ 'Today @online' :
+                "         \ {
+                "         \ 'filter': ['@status(online)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @home' : 
+                "         \ {
+                "         \ 'filter': ['@status(home)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @goout' :
+                "         \ {
+                "         \ 'filter': ['@status(goout)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @pc' : 
+                "         \ {
+                "         \ 'filter': ['@status(pc)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @anywhere' : 
+                "         \ {
+                "         \ 'filter': ['@status(anywhere)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @call' :
+                "         \ {
+                "         \ 'filter': ['@status(call)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'no context' : 
+                "         \ {
+                "         \ 'filter': ['^\(.*@status\)\@!.*'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                " \ },
+                " \ 'Context' : 
+                " \ {
+                "     \ 'Today @online' :
+                "         \ {
+                "         \ 'filter': ['@status(online)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @home' : 
+                "         \ {
+                "         \ 'filter': ['@status(home)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @goout' :
+                "         \ {
+                "         \ 'filter': ['@status(goout)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @pc' : 
+                "         \ {
+                "         \ 'filter': ['@status(pc)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @anywhere' : 
+                "         \ {
+                "         \ 'filter': ['@status(anywhere)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'Today @call' :
+                "         \ {
+                "         \ 'filter': ['@status(call)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                "     \ 'no context' : 
+                "         \ {
+                "         \ 'filter': ['^\(.*@status\)\@!.*'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "         \ },
+                " \ },
+                " \ 'Priority' :
+                " \ {
+                "     \ 'no priority' : 
+                "     \ {
+                "         \ 'filter': ['^\(.*@priority\)\@!.*'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "     \ },
+                "     \ 'Today Pi=1' : 
+                "     \ {
+                "         \ 'filter': ['@priority(1)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "     \ },
+                "     \ 'Today Pi=2' : 
+                "     \ {
+                "         \ 'filter': ['@priority(2)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "     \ },
+                "     \ 'Today Pi=3' : 
+                "     \ {
+                "         \ 'filter': ['@priority(3)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "     \ },
+                "     \ 'Today Pi=4' : 
+                "     \ {
+                "         \ 'filter': ['@priority(4)'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "     \ },
+                "     \ 'Today Pi>=4' : 
+                "     \ {
+                "         \ 'filter': ['@priority(\(1\|2\|3\|4\))'],
+                "         \ 'grep': ['^.*@due(\(' . s:getMyWeekNoStr() . '\|' . s:getWeekPatternBefToday() . '\))\(.*@done\)\@!.*$']
+                "     \ }
+            "     \ }
+            " \ }
 endif
+"}}}
+
+"Block of python{{{
+
+python << EOF
+import vGTDTimer
+def log_tm():
+    vt = vGTDTimer.VimTimer()
+    vt.startTimerLog()
+    sv = vGTDTimer.n_surveillant(vt)
+    sv.run()
+
+def log_ct(interval=25*60):
+    vt = vGTDTimer.VimTimer()
+    vt.startCountdownLog(interval*1000)
+    sv = vGTDTimer.n_surveillant(vt)
+    sv.run()
+
+EOF
 "}}}
