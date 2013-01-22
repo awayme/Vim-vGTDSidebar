@@ -470,25 +470,26 @@ function! vGTDSidebar#VGTD_initEnviron()
     " call vGTDSidebar#VGTD_ConcealInline("@pse(.*)")
     " call vGTDSidebar#VGTD_ConcealInline("@rsm(.*)")
     " call vGTDSidebar#VGTD_ConcealInline("@stp(.*)")
-
     set foldtext=vGTDSidebar#VGTD_MyFoldText()
-    " source vGTDpy
 endfunction
-
+"}}}
+"function! vGTDSidebar#VGTD_MyFoldText(){{{
 function! vGTDSidebar#VGTD_MyFoldText()
     let l:foldtext = MyFoldText()
     let l:foldtext = substitute(l:foldtext,'@id(.\{-})','','g')
     "echo l:foldtext
     return l:foldtext
 endfunction
-
+"}}}
+"function! vGTDSidebar#VGTD_startTimerLog(){{{
 function! vGTDSidebar#VGTD_startTimerLog()
 python << EOF
 import vGTDTimer
 vGTDTimer.VimTimerHelper().startTimerLog()
 EOF
 endfunction
-
+"}}}
+"function! vGTDSidebar#VGTD_startCountdownLog(minutes){{{
 function! vGTDSidebar#VGTD_startCountdownLog(minutes)
 python << EOF
 import vim
@@ -635,17 +636,4 @@ if !exists("g:v_GTD_filter")
             "     \ }
             " \ }
 endif
-"}}}
-
-"Block of python{{{
-python << EOF
-# import vGTDTimer
-# 
-# def log_tm():
-#     vGTDTimer.VimTimerHelper().startTimerLog()
-# 
-# def log_ct(interval=25*60):
-#     vGTDTimer.VimTimerHelper().startCountdownLog(interval)
-
-EOF
 "}}}
