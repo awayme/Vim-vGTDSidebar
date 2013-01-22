@@ -481,6 +481,23 @@ function! vGTDSidebar#VGTD_MyFoldText()
     "echo l:foldtext
     return l:foldtext
 endfunction
+
+function! vGTDSidebar#VGTD_startTimerLog()
+python << EOF
+import vGTDTimer
+vGTDTimer.VimTimerHelper().startTimerLog()
+EOF
+endfunction
+
+function! vGTDSidebar#VGTD_startCountdownLog(minutes)
+python << EOF
+import vim
+import vGTDTimer
+
+minutes = vim.eval("a:minutes") #or vim.eval("a:0")
+vGTDTimer.VimTimerHelper().startCountdownLog(int(minutes)*60)
+EOF
+endfunction
 "}}}
 "}}}
 
@@ -621,20 +638,14 @@ endif
 "}}}
 
 "Block of python{{{
-
 python << EOF
-import vGTDTimer
-def log_tm():
-    vt = vGTDTimer.VimTimer()
-    vt.startTimerLog()
-    sv = vGTDTimer.n_surveillant(vt)
-    sv.run()
-
-def log_ct(interval=25*60):
-    vt = vGTDTimer.VimTimer()
-    vt.startCountdownLog(interval*1000)
-    sv = vGTDTimer.n_surveillant(vt)
-    sv.run()
+# import vGTDTimer
+# 
+# def log_tm():
+#     vGTDTimer.VimTimerHelper().startTimerLog()
+# 
+# def log_ct(interval=25*60):
+#     vGTDTimer.VimTimerHelper().startCountdownLog(interval)
 
 EOF
 "}}}

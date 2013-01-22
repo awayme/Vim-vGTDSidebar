@@ -84,15 +84,6 @@ class VimTimer(RoTimer):
         self.vim_buffer = vim.current.buffer
         self.start_date = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
 
-    def playSound(self):
-        if sys.platform[:5] == 'linux':
-            import os
-            os.popen2('aplay -q' + soundFile)
-        else:
-            import winsound
-            winsound.PlaySound(soundFile, winsound.SND_FILENAME)
-
-
     def flush_line(self):
         p = self.cur_line.find('@id')
         t = self.start_date
@@ -116,7 +107,7 @@ class VimTimer(RoTimer):
     def stopLog(self):
         if self.mode == self.mode_flag['timer']:
             self.cmdStop()
-            newline = re.sub(r' @stp', '', self.vim_buffer[self.task_row])
+            newline = re.sub(r'@stp', '', self.vim_buffer[self.task_row])
             self.vim_buffer[self.task_row] = newline
 
         if self.mode == self.mode_flag['countdown']:
@@ -140,14 +131,11 @@ class VimTimer(RoTimer):
     def resumeLog(self):
         self.cmdResume()
 
-class n_surveillant(object):
-    # def __init__(self,func, vimtimer):
-    def __init__(self, vimtimer):
-        # Thread.__init__(self)
+class VimTimerHelper(VimTimer):
+    def __init__(self):
+        VimTimer.__init__(self)
         self.soundFile = 'C:/Program Files/CONEXANT/SAII/BlueStream.wav'
         self.over=False
-        # self.func=func
-        self.vt = vimtimer
         self.status_flag = {'stop':1, 'running':2, 'pause':3}
 
         (row, col) = vim.current.window.cursor
@@ -155,32 +143,47 @@ class n_surveillant(object):
         self.vimbuf = vim.current.buffer
         # self.cur_line = vim.current.line
 
-    def aft_countdown(self):
-        pass
+    def __aft_countdown(self):
+        self.__playSound()
+
+    def startTimerLog(self):
+        VimTimer.startTimerLog(self)
+        self.__run()
+
+    def startCountdownLog(self, interval):
+        VimTimer.startCountdownLog(self, interval*1000)
+        self.__run()
+
+    def __playSound(self):
+        if sys.platform[:5] == 'linux':
+            import os
+            os.popen2('aplay -q' + self.soundFile)
+        else:
+            import winsound
+            winsound.PlaySound(self.soundFile, winsound.SND_FILENAME)
 
     def __timerCallback(self):
         line = self.vimbuf[self.task_row]
 
-        # print self.vt.getCountDelta()
-        if self.vt.getStatus() == self.status_flag['stop']:
+        if VimTimer.getStatus(self) == self.status_flag['stop']:
             print 'timer stop'
-            self.vt.stopLog()
+            VimTimer.stopLog(self)
             self.timer.stop() # stops the thread and joins it.
-            self.aft_countdown()
+            self.__aft_countdown()
 
         if line.find('@stt') > -1:
             print 'find stt'
         elif line.find('@pse') > -1:
             print 'find pse'
-            self.vt.pauseLog()
+            VimTimer.pauseLog(self)
         elif line.find('@rsm') > -1:
             print 'find rsm'
-            self.vt.resumeLog()
+            VimTimer.resumeLog(self)
         elif line.find('@stp') > -1:
             print 'find stp'
-            self.vt.stopLog()
+            VimTimer.stopLog(self)
             self.timer.stop() # stops the thread and joins it.
 
-    def run(self):
+    def __run(self):
         self.timer = timer2.Timer()
         self.timer.apply_interval(2000, self.__timerCallback)
