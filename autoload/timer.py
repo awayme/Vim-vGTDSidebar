@@ -5,8 +5,11 @@ from tkMessageBox import showinfo
 import time,tkMessageBox
 import datetime
 import chardet
+import os
 
 soundFile = 'C:/Program Files/CONEXANT/SAII/BlueStream.wav'
+flagFile = os.path.expandvars('$temp') + '/pypomo'
+vimDoneFlag = 'vimDone'
 
 def playSound():  
     if sys.platform[:5] == 'linux':  
@@ -17,8 +20,7 @@ def playSound():
         winsound.PlaySound(soundFile, winsound.SND_FILENAME)  
 
 def ctDone():
-    global lh
-    #lh = LogHandler(task_file)
+    lh = LogHandler(task_file)
     lh.log_out(str(countdown_interval))
 
     playSound()
@@ -32,20 +34,51 @@ class LogHandler():
         #print self.log_file
 
     def log_in(self, taskname): 
-        self.logitem = datetime.datetime.now().strftime("%Y-%m-%d") + "," + datetime.datetime.now().strftime("%H:%M") + "," + taskname + ","
-
-        # f = file(self.log_file, 'a')
-        # #print taskname
-        # #print task_id
-        # f.write(datetime.datetime.now().strftime("%Y-%m-%d") + "," + datetime.datetime.now().strftime("%H:%M") + "," + taskname + ",")
-        # f.close()
+        f = file(self.log_file, 'a')
+        #print taskname
+        #print task_id
+        f.write(datetime.datetime.now().strftime("%Y-%m-%d") + "," + datetime.datetime.now().strftime("%H:%M") + "," + taskname + ",")
+        f.close()
 
     def log_out(self, taskinterval):
         f = file(self.log_file, 'a')
-        self.logitem += taskinterval + "\n"
-        f.write(self.logitem)
-        # f.write(taskinterval + "\n")
+        f.write(taskinterval + "\n")
         f.close()
+
+class checkflagfile(Thread):
+    # def __init__(self,func):
+    #     Thread.__init__(self)
+    #     self.func=func
+    def __init__(self):
+        Thread.__init__(self)
+
+    def vimDone(self):
+        str = open(flagFile).read()
+        str.rstrip()
+        str.rstrip('\n')
+        str.rstrip('\r')
+        
+        if str == vimDoneFlag:
+            # print 'vim done'
+            # return True
+            root = Tk()
+            root.mainloop()
+            if t:
+                if tkMessageBox.askokcancel("Stop", "Task in vim was marked DONE, Stop the timer?"):
+                    t.st()
+                    return True
+            else:
+                return True
+
+        return False
+
+
+    def run(self):
+        while True:
+            time.sleep(2)
+            vimStop = self.vimDone()
+            if vimStop:
+                return
 
 class Timer(Thread):
     over=False
@@ -114,8 +147,7 @@ def st():
     sec=0;show()
     t=Timer(up)
 
-    global lh
-    #lh = LogHandler(task_file)
+    lh = LogHandler(task_file)
     lh.log_in(task_name)
 
     t.start()
@@ -144,8 +176,7 @@ def cd():
     show()
     t=Timer(down)
 
-    global lh
-    #lh = LogHandler(task_file)
+    lh = LogHandler(task_file)
     lh.log_in(task_name)
 
     t.start()
@@ -161,8 +192,7 @@ def stp():
     global timer_mode,countdown_interval
 
     if sec:
-        global lh
-        #lh = LogHandler(task_file)
+        lh = LogHandler(task_file)
 
         if timer_mode == "ct":
             lh.log_out(str(countdown_interval - sec/60))
@@ -172,6 +202,18 @@ def stp():
     sec=0;show()
     if t: t.kill()
     t=None
+
+def closew():
+    if t:
+        if tkMessageBox.askokcancel("Quit", "Timer is running,Do you want to stop it then quit?"):
+            st()
+        else:
+            return
+
+    os.remove(flagFile)
+    root.destroy()
+
+
 
 task_file = sys.argv[1]
 task_name = sys.argv[2]
@@ -187,8 +229,6 @@ print task_mode
 print task_start
 print countdown_interval
 
-global lh
-lh = LogHandler(task_file)
  
 en1 = Entry (root, textvariable = e1 ,width=10 ,justify=RIGHT)
 en2 = Entry (root, textvariable = e2 ,width=10)
@@ -221,4 +261,14 @@ task_name_without_id = task_name.split('@')[0].decode('gbk')
 en3.insert(INSERT, task_name_without_id + "\n" + str(countdown_interval) + "\n" + task_lineno + "\n" + task_mode + "\n" + task_start + "\n" + task_file)
  
 root.geometry('+500+400')
+
+# import tkMessageBox
+print flagFile
+f = file(flagFile, 'w')
+f.write('dersu')
+f.close()
+
+checkflagfile().start()
+
+root.protocol("WM_DELETE_WINDOW", closew)
 root.mainloop ()
