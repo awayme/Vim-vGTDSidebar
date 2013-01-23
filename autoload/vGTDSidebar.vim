@@ -79,7 +79,9 @@ function! s:defaultMapping()
     " command! -range GtDue :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr())
     " nnoremap <unique> <buffer> <localleader>tn :GtDue<CR>
 
-    command! -range GtStart :<line1>,<line2>call taskpaper#add_tag('stt','')
+    " command! -range GtStart :<line1>,<line2>call taskpaper#add_tag('stt','')
+    command! -range GtStart :call vGTDSidebar#VGTD_startTimerLog()
+    command! -range GtStarc :call vGTDSidebar#VGTD_startCountdownLog(25)
     command! -range GtPause :<line1>,<line2>call taskpaper#add_tag('pse','')
     command! -range GtResume :<line1>,<line2>call taskpaper#add_tag('rsm','')
     command! -range GtStop :<line1>,<line2>call taskpaper#add_tag('stp','')
@@ -101,14 +103,14 @@ function! s:defaultMapping()
     " command! -range GtPriority4 :<line1>,<line2>call taskpaper#add_tag('priority','4')
     " command! -range GtPriority5 :<line1>,<line2>call taskpaper#add_tag('priority','5')
 
-    command! -range GtEtiny :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'tiny')
-    nnoremap <unique> <buffer> <localleader>tt :GtEtiny<CR>
+    " command! -range GtEtiny :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'tiny')
+    " nnoremap <unique> <buffer> <localleader>tt :GtEtiny<CR>
 
-    command! -range GtEmedium :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'medium')
-    nnoremap <unique> <buffer> <localleader>tm :GtEmedium<CR>
+    " command! -range GtEmedium :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'medium')
+    " nnoremap <unique> <buffer> <localleader>tm :GtEmedium<CR>
 
-    command! -range GtEhuge :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'huge')
-    nnoremap <unique> <buffer> <localleader>th :GtEhuge<CR>
+    " command! -range GtEhuge :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'huge')
+    " nnoremap <unique> <buffer> <localleader>th :GtEhuge<CR>
 
     " command! -range GtShome :<line1>,<line2>call taskpaper#toggle_tag('status', 'home')
     " nnoremap <unique> <buffer> <localleader>th :GtShome<CR>
@@ -152,7 +154,6 @@ function! s:defaultMapping()
     " command! GfContextNone      :execute "BstermPri! NextAToday" | Bsfilter ^\(.*@status\)\@!.*
     " command! GfPriorityNone     :execute "BstermPri! NextAToday" | Bsfilter ^\(.*@priority\)\@!.*
     " command! GfPriority123      :execute "BstermPri! NextAToday" | Bsfilter @priority(\(1\|2\|3\))
-    "                                                                         "@priority(1)
 
     command! GcConcealTask :call ConcealLine(".*@done.*")
     command! GcConcealClose :call ConcealLineClear()
@@ -497,6 +498,12 @@ import vGTDTimer
 
 minutes = vim.eval("a:minutes") #or vim.eval("a:0")
 vGTDTimer.VimTimerHelper().startCountdownLog(int(minutes)*60)
+
+#default is 10 scond
+# setShowNewtimeInterval(itv):
+#default is 2 second
+# setSurveillantPace(pace):
+
 EOF
 endfunction
 "}}}

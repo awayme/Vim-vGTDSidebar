@@ -84,6 +84,7 @@ class VimTimer(RoTimer):
         self.vim_cmd_tag = {'stop':'@stp', 'pause':'@pse', 'resume':'@rsm'}
         self.show_newtime_interval = 10 #in second
 
+    #itv in second
     def setShowNewtimeInterval(self, itv):
         self.show_newtime_interval = itv
 
