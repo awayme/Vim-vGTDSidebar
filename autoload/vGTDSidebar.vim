@@ -4,6 +4,8 @@ if exists("g:loaded_autoload_vgtdsidebar")
     " also, don't double load
     finish
 endif
+
+let s:script_dir = substitute(expand("<sfile>:p:h"),'\','/','g')
 let g:loaded_autoload_vgtdsidebar = 1.0
 let t:vGTDSidebar_SidebarBufName = 'VGTD sidebar'
 let t:vGTDSidebar_ConcealMatchGroupName = "concealMatch"
@@ -80,8 +82,8 @@ function! s:defaultMapping()
     " nnoremap <unique> <buffer> <localleader>tn :GtDue<CR>
 
     " command! -range GtStart :<line1>,<line2>call taskpaper#add_tag('stt','')
-    command! -range GtStart :call vGTDSidebar#VGTD_startTimerLog()
-    command! -range GtStarc :call vGTDSidebar#VGTD_startCountdownLog(25)
+    command! -range GtStartt :call vGTDSidebar#VGTD_startLog('tm')
+    command! -range GtStartc :call vGTDSidebar#VGTD_startLog('ct', 25)
     command! -range GtPause :<line1>,<line2>call taskpaper#add_tag('pse','')
     command! -range GtResume :<line1>,<line2>call taskpaper#add_tag('rsm','')
     command! -range GtStop :<line1>,<line2>call taskpaper#add_tag('stp','')
@@ -431,30 +433,47 @@ function! vGTDSidebar#VGTD_MyFoldText()
     return l:foldtext
 endfunction
 "}}}
-"function! vGTDSidebar#VGTD_startTimerLog(){{{
-function! vGTDSidebar#VGTD_startTimerLog()
+"function! vGTDSidebar#VGTD_startLog(){{{
+function! vGTDSidebar#VGTD_startLog(mode, ...)
 python << EOF
-import vGTDTimer
-vGTDTimer.VimTimerHelper().startTimerLog()
-EOF
-endfunction
-"}}}
-"function! vGTDSidebar#VGTD_startCountdownLog(minutes){{{
-function! vGTDSidebar#VGTD_startCountdownLog(minutes)
-python << EOF
-import vim
+import sys, vim
+if not vim.eval("s:script_dir") in sys.path:
+    sys.path.append(vim.eval("s:script_dir"))
+
 import vGTDTimer
 
-minutes = vim.eval("a:minutes") #or vim.eval("a:0")
-vGTDTimer.VimTimerHelper().startCountdownLog(int(minutes)*60)
+mode = vim.eval("a:mode")
+if mode == 'tm':
+    vGTDTimer.VimTimerHelper().startTimerLog()
+elif mode == 'ct':
+    minutes = vim.eval("a:1") #or vim.eval("a:0")
+    vGTDTimer.VimTimerHelper().startCountdownLog(int(minutes)*60)
 
 #default is 10 scond
 # setShowNewtimeInterval(itv):
 #default is 2 second
 # setSurveillantPace(pace):
-
 EOF
 endfunction
+
+" "function! vGTDSidebar#VGTD_startTimerLog(){{{
+" function! vGTDSidebar#VGTD_startTimerLog()
+" python << EOF
+" import vGTDTimer
+" vGTDTimer.VimTimerHelper().startTimerLog()
+" EOF
+" endfunction
+" "}}}
+" "function! vGTDSidebar#VGTD_startCountdownLog(minutes){{{
+" function! vGTDSidebar#VGTD_startCountdownLog(minutes)
+" python << EOF
+" import vim
+" import vGTDTimer
+" 
+" minutes = vim.eval("a:minutes") #or vim.eval("a:0")
+" vGTDTimer.VimTimerHelper().startCountdownLog(int(minutes)*60)
+" EOF
+" endfunction
 "}}}
 "}}}
 
