@@ -17,7 +17,6 @@ class RoTimer(object):
         self.mode = self.mode_flag['timer']
         self.count_delta = 0
         self.timer_pace = 1000
-        # self.countdown
 
     def getCountDelta(self):
         return self.count_delta
@@ -26,7 +25,6 @@ class RoTimer(object):
         if self.status == self.status_flag['running']:
             if self.mode == self.mode_flag['timer']:
                 self.count_delta += self.timer_pace
-                #logger.debug(str(self.count_delta) + " passed")
                 func_callback()
 
             if self.mode == self.mode_flag['countdown']:
@@ -34,12 +32,6 @@ class RoTimer(object):
                 func_callback()
                 if self.count_delta <= 0:
                     self.cmdStop()
-
-    # def getStatusFlag(self):
-    #     return self.status_flag
-
-    # def getModFlag(self):
-    #     return self.mod_flag
 
     def getMode(self):
         return self.mode
@@ -62,14 +54,12 @@ class RoTimer(object):
             func_callback = self.display_count
         self.mode = self.mode_flag['countdown']
         self.countdown_interval = interval
-        # print self.countdown_interval
         self.count_delta = self.countdown_interval
         self.cmdStart(func_callback)
 
     def cmdStart(self, func_callback):
         self.timer = timer2.Timer()
         self.timer.apply_interval(self.timer_pace, self.__timerCallback, [func_callback])
-        #self.timer.apply_interval(1000, self.timerCallback, None, None)
         self.status = self.status_flag['running']
 
     def cmdStop(self):
@@ -135,8 +125,6 @@ class VimTimer(RoTimer):
             else:
                 newline = self.cur_line + ' @log(' + t + '/' + tstr + ')'
 
-            # line = self.vim_buffer[self.task_row]
-            # newline = re.sub(r'\/.*?\)', '/' + tstr + ')', line)
             self.vim_buffer[self.task_row] = newline
             self.__removeTag(self.vim_cmd_tag['stop'])
 
@@ -144,11 +132,9 @@ class VimTimer(RoTimer):
         self.cmdPause()
 
     def resumeLog(self):
-        # self.__removeTag('@pse ')
         self.__removeTag(self.vim_cmd_tag['pause'] + ' ')
         self.cmdResume()
         self.__removeTag(self.vim_cmd_tag['resume'] + ' ')
-        # self.__removeTag('@rsm ')
 
     def __removeTag(self, tag):
         newline = self.vim_buffer[self.task_row].replace(tag, '')
@@ -157,25 +143,18 @@ class VimTimer(RoTimer):
 class VimTimerHelper(VimTimer):
     def __init__(self):
         VimTimer.__init__(self)
-        # self.soundFile = 'C:/Program Files/CONEXANT/SAII/BlueStream.wav'
         self.over=False
         self.surveillant_pace = 2000
-        # self.status_flag = {'stop':1, 'running':2, 'pause':3}
 
         (row, col) = vim.current.window.cursor
         self.task_row = row - 1
         self.vimbuf = vim.current.buffer
-        # self.cur_line = vim.current.line
-
-    # def setSoundFile(self, fullpathname):
-    #     self.soundFile = fullpathname
 
     #pace in second
     def setSurveillantPace(self, pace):
         self.surveillant_pace = pace * self.timer_pace
 
     def __aft_countdown(self):
-        # self.__playSound()
         INTERPRETER = "c:\Python27\pythonw.exe"
         if not os.path.exists(INTERPRETER):
             print ("Cannot find INTERPRETER at path \"%s\"." % INTERPRETER)
@@ -192,14 +171,6 @@ class VimTimerHelper(VimTimer):
     def startCountdownLog(self, interval):
         VimTimer.startCountdownLog(self, interval * self.timer_pace)
         self.__run()
-
-    # def __playSound(self):
-    #     if sys.platform[:5] == 'linux':
-    #         import os
-    #         os.popen2('aplay -q' + self.soundFile)
-    #     else:
-    #         import winsound
-    #         winsound.PlaySound(self.soundFile, winsound.SND_FILENAME)
 
     def __timerCallback(self):
         line = self.vimbuf[self.task_row]
