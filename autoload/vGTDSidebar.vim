@@ -140,35 +140,6 @@ function! s:defaultMapping()
     command! GcConcealTask :call ConcealLine(".*@done.*")
     command! GcConcealClose :call ConcealLineClear()
 
-    "nnoremap <silent> <buffer> <Plug>TaskPaperFoldProjects
-    "\       :<C-u>call Taskpaper_fold_projects()<CR>
-    "nnoremap <silent> <buffer> <Plug>TaskPaperFoldNotes
-    "\       :<C-u>call Taskpaper_search('\v^(\s*\|\t+-\s+.*\|.+:)$')<CR>
-    "nnoremap <silent> <buffer> <Plug>TaskPaperFocusProject
-    "\       :<C-u>call Taskpaper_focus_project()<CR>
-
-    "nnoremap <silent> <buffer> <Plug>TaskPaperSearchKeyword
-    "\       :<C-u>call Taskpaper_search()<CR>
-    "nnoremap <silent> <buffer> <Plug>TaskPaperSearchTag
-    "\       :<C-u>call Taskpaper_search_tag()<CR>
-    "
-    "nnoremap <silent> <buffer> <Plug>TaskPaperGoToProject
-    "\       :<C-u>call Taskpaper_go_to_project()<CR>
-    "nnoremap <silent> <buffer> <Plug>TaskPaperNextProject
-    "\       :<C-u>call Taskpaper_next_project()<CR>
-    "nnoremap <silent> <buffer> <Plug>TaskPaperPreviousProject
-    "\       :<C-u>call Taskpaper_previous_project()<CR>
-
-    "nnoremap <silent> <buffer> <Plug>TaskPaperArchiveDone
-    "\       :<C-u>call Taskpaper_archive_done()<CR>
-    "nnoremap <silent> <buffer> <Plug>TaskPaperShowCancelled
-    "\       :<C-u>call Taskpaper_search_tag('cancelled')<CR>
-    "nnoremap <silent> <buffer> <Plug>TaskPaperMoveToProject
-    "\       :call Taskpaper_move_to_project()<CR>
-    "
-    "nnoremap <silent> <buffer> <Plug>TaskPaperNewline
-    "\       o<C-r>=Taskpaper_newline()<CR>
-
     ""To delete a tag:
     "nnoremap <buffer> <silent> <Leader>tN
     "\    :<C-u>call Taskpaper_delete_tag('next', '')<CR>
@@ -449,10 +420,6 @@ function! vGTDSidebar#VGTD_initEnviron()
     call s:defaultMapping()
     call vGTDSidebar#VGTD_ConcealLine(".*@done.*")
     call vGTDSidebar#VGTD_ConcealInline("@id(.*)")
-    " call vGTDSidebar#VGTD_ConcealInline("@stt(.*)")
-    " call vGTDSidebar#VGTD_ConcealInline("@pse(.*)")
-    " call vGTDSidebar#VGTD_ConcealInline("@rsm(.*)")
-    " call vGTDSidebar#VGTD_ConcealInline("@stp(.*)")
     set foldtext=vGTDSidebar#VGTD_MyFoldText()
 endfunction
 "}}}
