@@ -112,24 +112,6 @@ function! s:defaultMapping()
     " command! -range GtEhuge :<line1>,<line2>call taskpaper#toggle_tag('estimates', 'huge')
     " nnoremap <unique> <buffer> <localleader>th :GtEhuge<CR>
 
-    " command! -range GtShome :<line1>,<line2>call taskpaper#toggle_tag('status', 'home')
-    " nnoremap <unique> <buffer> <localleader>th :GtShome<CR>
-
-    " command! -range GtSgoout :<line1>,<line2>call taskpaper#toggle_tag('status', 'goout')
-    " nnoremap <unique> <buffer> <localleader>tg :GtSgoout<CR>
-
-    " command! -range GtSpc :<line1>,<line2>call taskpaper#toggle_tag('status', 'pc')
-    " nnoremap <unique> <buffer> <localleader>tp :GtSpc<CR>
-
-    " command! -range GtSonline :<line1>,<line2>call taskpaper#toggle_tag('status', 'online')
-    " nnoremap <unique> <buffer> <localleader>to :GtSonline<CR>
-
-    " command! -range GtSany :<line1>,<line2>call taskpaper#toggle_tag('status', 'anywhere')
-    " nnoremap <unique> <buffer> <localleader>ta :GtSany<CR>
-
-    " command! -range GtScall :<line1>,<line2>call taskpaper#toggle_tag('status', 'call')
-    " nnoremap <unique> <buffer> <localleader>tc :GtScall<CR>
-
     " command! -range GtStar :<line1>,<line2>call taskpaper#toggle_tag('~', '')
     " nnoremap <unique> <buffer> <localleader>ts :GtStar<CR>
 
