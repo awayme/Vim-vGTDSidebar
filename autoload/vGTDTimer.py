@@ -160,7 +160,7 @@ class VimTimerHelper(VimTimer):
         if not os.path.exists(INTERPRETER):
             print ("Cannot find INTERPRETER at path \"%s\"." % INTERPRETER)
 
-        processor = "bell.py"
+        processor = os.path.dirname(os.path.abspath(__file__)) + "/bell.py"
         pargs = [INTERPRETER, processor]
         subprocess.Popen(pargs)
 
