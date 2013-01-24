@@ -17,6 +17,7 @@ class RoTimer(object):
         self.mode = self.mode_flag['timer']
         self.count_delta = 0
         self.timer_pace = 1000
+        self.countdown_interval = 0
 
     def getCountDelta(self):
         return self.count_delta
@@ -93,8 +94,9 @@ class VimTimer(RoTimer):
         t = self.start_date
         sec = self.count_delta/self.timer_pace
         tstr = '%.2d'%(sec/(60)) + ':' + '%.2d'%(sec%(60))
+        # print tstr
 
-        if sec % self.show_newtime_interval == 0 or sec <= 1:
+        if sec % self.show_newtime_interval == 0 or sec <= 1 or self.countdown_interval - self.count_delta == 0:
             if p >= 0:
                 newline = self.cur_line[0:p] + '@log(' + t + '/' + tstr + ') ' + self.cur_line[p:len(self.cur_line)]
             else:
@@ -126,6 +128,7 @@ class VimTimer(RoTimer):
             else:
                 newline = self.cur_line + ' @log(' + t + '/' + tstr + ')'
 
+            self.cmdStop()
             self.vim_buffer[self.task_row] = newline
             self.__removeTag(self.vim_cmd_tag['stop'])
 
