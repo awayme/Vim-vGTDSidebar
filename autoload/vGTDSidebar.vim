@@ -9,6 +9,7 @@ let s:script_dir = substitute(expand("<sfile>:p:h"),'\','/','g')
 let g:loaded_autoload_vgtdsidebar = 1.0
 let t:vGTDSidebar_SidebarBufName = 'VGTD sidebar'
 let t:vGTDSidebar_ConcealMatchGroupName = "concealMatch"
+let g:vGTDSidebar_Platform = "windows"
 "}}}
 
 "global setting {{{
@@ -86,7 +87,11 @@ function! s:defaultMapping()
     command! -range GtStartc :call vGTDSidebar#VGTD_startLog('ct', 25)
     command! -range GtPause :<line1>,<line2>call taskpaper#add_tag('pse','')
     command! -range GtResume :<line1>,<line2>call taskpaper#add_tag('rsm','')
-    command! -range GtStop :<line1>,<line2>call taskpaper#add_tag('stp','')
+    if g:vGTDSidebar_Platform == "android"
+        command! -range GtStop :call vGTDSidebar#VGTD_stopLog()
+    else
+        command! -range GtStop :<line1>,<line2>call taskpaper#add_tag('stp','')
+    endif
 
     command! -range GtDueToday :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr() . '+' . s:getChineseWeekDayNo())
     nnoremap <unique> <buffer> <localleader>tn :GtDueToday<CR>
@@ -435,6 +440,12 @@ endfunction
 "}}}
 "function! vGTDSidebar#VGTD_startLog(){{{
 function! vGTDSidebar#VGTD_startLog(mode, ...)
+if g:vGTDSidebar_Platform == "android"
+    let timestr = strftime("%Y/%m/%d %H:%M/~", localtime())
+    let timestr = timestr . reltimestr(reltime())
+
+    call taskpaper#toggle_tag('log', timestr)
+else
 python << EOF
 import sys, vim
 if not vim.eval("s:script_dir") in sys.path:
@@ -448,12 +459,12 @@ if mode == 'tm':
 elif mode == 'ct':
     minutes = vim.eval("a:1") #or vim.eval("a:0")
     vGTDTimer.VimTimerHelper().startCountdownLog(int(minutes)*60)
-
 #default is 10 scond
 # setShowNewtimeInterval(itv):
 #default is 2 second
 # setSurveillantPace(pace):
 EOF
+endif
 endfunction
 
 " "function! vGTDSidebar#VGTD_startTimerLog(){{{
@@ -476,7 +487,28 @@ endfunction
 " endfunction
 "}}}
 "}}}
+"function! vGTDSidebar#VGTD_stoptLog(){{{
+function! vGTDSidebar#VGTD_stopLog()
+    let pat = '\~.\{-})'
+    let ln = getline(".")
 
+    let s = match(ln, pat)
+    if s == -1
+        echo "task not started yet"
+        return
+    else
+        let s = s + 1
+    endif
+
+    let e = matchend(ln, pat) - 1
+    let tstr = str2float(strpart(ln, s, e-s))
+    let interval = float2nr(reltimestr(reltime()) - tstr)
+    let interval_f = printf("%.2d:%.2d)", interval/60, interval%60)
+
+    let ln = substitute(ln, pat, interval_f, '')
+    call setline(".", ln)
+endfunction
+"}}}
 "default filter setting{{{
 if !exists("g:v_GTD_filter")
     let g:v_GTD_filter = {
