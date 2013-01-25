@@ -9,7 +9,6 @@ let s:script_dir = substitute(expand("<sfile>:p:h"),'\','/','g')
 let g:loaded_autoload_vgtdsidebar = 1.0
 let t:vGTDSidebar_SidebarBufName = 'VGTD sidebar'
 let t:vGTDSidebar_ConcealMatchGroupName = "concealMatch"
-let g:vGTDSidebar_Platform = "windows"
 "}}}
 
 "global setting {{{
@@ -19,6 +18,9 @@ if !exists("g:vGTDSidebar_Width")
 endif
 if !exists("g:vGTDSidebar_WinPos")
     let g:vGTDSidebar_WinPos = "left" 
+endif
+if !exists("g:vGTDSidebar_Platform")
+    let g:vGTDSidebar_Platform = "windows"
 endif
 "}}}
 
