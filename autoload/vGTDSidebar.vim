@@ -509,6 +509,10 @@ function! vGTDSidebar#VGTD_stopLog()
 
     let ln = substitute(ln, pat, interval_f, '')
     call setline(".", ln)
+    if input("mark task done?[y]es, enter to cancel:") == "y"
+        call taskpaper#toggle_tag('done', taskpaper#date())
+    endif
+
 endfunction
 "}}}
 "default filter setting{{{
