@@ -97,7 +97,10 @@ class VimTimer(RoTimer):
         # print tstr
 
         # print str(self.countdown_interval - self.count_delta)
-        if sec % self.show_newtime_interval == 0 or sec <= 1 or (self.countdown_interval - self.count_delta)/self.timer_pace <= 1:
+        # print (self.countdown_interval - self.count_delta)/self.timer_pace
+        # print sec
+        if sec % self.show_newtime_interval == 0 or sec <= 1 or (self.countdown_interval - self.count_delta)/self.timer_pace == 1:
+            # print str(sec % self.show_newtime_interval) + '/' + str(sec) + '/' + str((self.countdown_interval - self.count_delta)/self.timer_pace)
             if p >= 0:
                 newline = self.cur_line[0:p] + '@log(' + t + '/' + tstr + ') ' + self.cur_line[p:len(self.cur_line)]
             else:
