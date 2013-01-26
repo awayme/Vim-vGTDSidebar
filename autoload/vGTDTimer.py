@@ -182,9 +182,10 @@ class VimTimerHelper(VimTimer):
 
         # print datetime.datetime.now().strftime("%M:%S ") + str(VimTimer.getStatus(self))
         if VimTimer.getStatus(self) == self.status_flag['stop']:
-            # print 'timer stop'
-            VimTimer.stopLog(self)
             self.__aft_countdown()
+            VimTimer.stopLog(self)
+
+            #never be executed, maybe to be fixed
             self.sv_timer.stop() # stops the thread and joins it.
 
         if line.find(self.vim_cmd_tag['resume']) > -1:
