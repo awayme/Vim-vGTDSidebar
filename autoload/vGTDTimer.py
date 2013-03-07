@@ -119,6 +119,7 @@ class VimTimer(RoTimer):
             self.cmdStop()
             # self.__removeTag('@stp')
             self.__removeTag(self.vim_cmd_tag['stop'])
+            print 'timer stopped'
 
         if self.mode == self.mode_flag['countdown']:
             p = self.cur_line.find('@id')
@@ -134,6 +135,7 @@ class VimTimer(RoTimer):
 
             self.vim_buffer[self.task_row] = newline
             self.__removeTag(self.vim_cmd_tag['stop'])
+            print 'countdown stopped'
             self.cmdStop()
 
     def pauseLog(self):
@@ -163,12 +165,15 @@ class VimTimerHelper(VimTimer):
         self.surveillant_pace = pace * self.timer_pace
 
     def __aft_countdown(self):
-        INTERPRETER = "c:\Python27\pythonw.exe"
-        if not os.path.exists(INTERPRETER):
-            print ("Cannot find INTERPRETER at path \"%s\"." % INTERPRETER)
+        # INTERPRETER = "C:\Windows\System32\cmd.exe"
+        # INTERPRETER = "c:\Python27\pythonw.exe"
+        # if not os.path.exists(INTERPRETER):
+        #     print ("Cannot find INTERPRETER at path \"%s\"." % INTERPRETER)
 
-        processor = os.path.dirname(os.path.abspath(__file__)) + "/bell.py"
-        pargs = [INTERPRETER, processor]
+        #processor = os.path.dirname(os.path.abspath(__file__)) + "/bell.py"
+        processor = os.path.dirname(os.path.abspath(__file__)) + "/notifier.cmd"
+        pargs = [processor]
+        # pargs = [INTERPRETER, processor]
         subprocess.Popen(pargs)
 
     def startTimerLog(self):
