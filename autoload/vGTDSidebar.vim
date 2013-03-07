@@ -78,21 +78,31 @@ endfunction
 "function! s:defaultMapping(){{{
 function! s:defaultMapping()
     command! -range GtDone :<line1>,<line2>call taskpaper#toggle_tag('done', taskpaper#date()) | call s:calDone(FindRootParent(line(".")))
-    "command! -range GtDone :<line1>,<line2>call taskpaper#toggle_tag('done', taskpaper#date())
     nnoremap <unique> <buffer> <localleader>td :GtDone<CR>
 
-    " command! -range GtDue :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr())
-    " nnoremap <unique> <buffer> <localleader>tn :GtDue<CR>
 
-    " command! -range GtStart :<line1>,<line2>call taskpaper#add_tag('stt','')
-    command! -range GtStartt :call vGTDSidebar#VGTD_startLog('tm')
-    command! -range GtStartc :call vGTDSidebar#VGTD_startLog('ct', 25)
+    if g:vGTDSidebar_Platform == "android"
+        command! -range GtStartt :call vGTDSidebar#VGTD_startLog_viml()
+    else
+        command! -range GtStartt :call vGTDSidebar#VGTD_startLog_python('tm')
+        nnoremap <unique> <buffer> <localleader>ts :GtStartt<CR>
+
+        command! -range GtStarttl :call vGTDSidebar#VGTD_startLog_viml()
+    endif
+
+    command! -range GtStartc :call vGTDSidebar#VGTD_startLog_python('ct', 25)
+    nnoremap <unique> <buffer> <localleader>tc :GtStartc<CR>
+
     command! -range GtPause :<line1>,<line2>call taskpaper#add_tag('pse','')
     command! -range GtResume :<line1>,<line2>call taskpaper#add_tag('rsm','')
+
     if g:vGTDSidebar_Platform == "android"
         command! -range GtStop :call vGTDSidebar#VGTD_stopLog()
     else
         command! -range GtStop :<line1>,<line2>call taskpaper#add_tag('stp','')
+        nnoremap <unique> <buffer> <localleader>tp :GtStop<CR>
+
+        command! -range GtStopl :call vGTDSidebar#VGTD_stopLog()
     endif
 
     command! -range GtDueToday :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr() . '+' . s:getChineseWeekDayNo())
@@ -440,14 +450,22 @@ function! vGTDSidebar#VGTD_MyFoldText()
     return l:foldtext
 endfunction
 "}}}
-"function! vGTDSidebar#VGTD_startLog(){{{
-function! vGTDSidebar#VGTD_startLog(mode, ...)
-if g:vGTDSidebar_Platform == "android"
+"function! vGTDSidebar#VGTD_startLog_viml(){{{
+function! vGTDSidebar#VGTD_startLog_viml()
     let timestr = strftime("%Y/%m/%d %H:%M/~", localtime())
     let timestr = timestr . reltimestr(reltime())
 
-    call taskpaper#toggle_tag('log', timestr)
-else
+    call taskpaper#add_tag('log', timestr)
+endfunction
+
+"function! vGTDSidebar#VGTD_startLog_python(){{{
+function! vGTDSidebar#VGTD_startLog_python(mode, ...)
+" if g:vGTDSidebar_Platform == "android"
+"     let timestr = strftime("%Y/%m/%d %H:%M/~", localtime())
+"     let timestr = timestr . reltimestr(reltime())
+" 
+"     call taskpaper#toggle_tag('log', timestr)
+" else
 python << EOF
 import sys, vim
 if not vim.eval("s:script_dir") in sys.path:
@@ -466,7 +484,6 @@ elif mode == 'ct':
 #default is 2 second
 # setSurveillantPace(pace):
 EOF
-endif
 endfunction
 
 " "function! vGTDSidebar#VGTD_startTimerLog(){{{
