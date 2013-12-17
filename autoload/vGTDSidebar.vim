@@ -75,9 +75,13 @@ function! s:getWeekPatternBefToday()
     return exp
 endfunction
 "}}}
+
+
+
 "function! s:defaultMapping(){{{
 function! s:defaultMapping()
-    command! -range GtDone :<line1>,<line2>call taskpaper#toggle_tag('done', taskpaper#date()) | call s:calDone(FindRootParent(line(".")))
+    "command! -range GtDone :<line1>,<line2>call taskpaper#toggle_tag('done', taskpaper#date()) | call s:calDone(FindRootParent(line(".")))
+    command! -range GtDone :<line1>,<line2>call taskpaper#toggle_tag('done', taskpaper#date())
     nnoremap <unique> <buffer> <localleader>td :GtDone<CR>
 
 
@@ -85,9 +89,9 @@ function! s:defaultMapping()
         command! -range GtStartt :call vGTDSidebar#VGTD_startLog_viml()
     else
         command! -range GtStartt :call vGTDSidebar#VGTD_startLog_python('tm')
-        nnoremap <unique> <buffer> <localleader>ts :GtStartt<CR>
 
         command! -range GtStarttl :call vGTDSidebar#VGTD_startLog_viml()
+        nnoremap <unique> <buffer> <localleader>ts :GtStarttl<CR>
     endif
 
     command! -range GtStartc :call vGTDSidebar#VGTD_startLog_python('ct', 25)
@@ -99,10 +103,10 @@ function! s:defaultMapping()
     if g:vGTDSidebar_Platform == "android"
         command! -range GtStop :call vGTDSidebar#VGTD_stopLog()
     else
-        command! -range GtStop :<line1>,<line2>call taskpaper#add_tag('stp','')
-        nnoremap <unique> <buffer> <localleader>tp :GtStop<CR>
+        command! -range GtStop :<line1>,<line2>call taskpaper#add_tag('stp','') | call vGTDSidebar#AskToToggleDoneTask(2)
 
         command! -range GtStopl :call vGTDSidebar#VGTD_stopLog()
+        nnoremap <unique> <buffer> <localleader>tp :GtStopl<CR>
     endif
 
     command! -range GtDueToday :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr() . '+' . s:getChineseWeekDayNo())
@@ -113,6 +117,12 @@ function! s:defaultMapping()
 
     command! -range GtDueDay :<line1>,<line2>call taskpaper#toggle_tag('due', s:getMyWeekNoStr(input('Value: ')))
     nnoremap <unique> <buffer> <localleader>tnd :GtDueDay<CR>
+
+    command! -range GtEst :<line1>,<line2>call taskpaper#toggle_tag('estimates', '1')
+    nnoremap <unique> <buffer> <localleader>te :GtEst<CR>
+
+    command! -range GtEstimates :<line1>,<line2>call taskpaper#toggle_tag('estimates', input('Hours: '))
+    nnoremap <unique> <buffer> <localleader>tee :GtEstimates<CR>
 
     " command! -range GtPriority :<line1>,<line2>call taskpaper#add_tag('priority')
     " nnoremap <unique> <buffer> <localleader>tpp :GtPriority<CR>
@@ -391,6 +401,7 @@ endf
 "}}}
 
 "functions exported{{{
+" function! vGTDSidebar#AskToToggleDoneTask(sec)
 "concealing done tasks by default{{{
 function! vGTDSidebar#VGTD_ConcealInline(expr)
     "exe ":syntax match " . w:matchgroup . " \"" . a:expr . "\"" . " conceal containedin = ALL"
@@ -409,6 +420,18 @@ function! vGTDSidebar#VGTD_ConcealLineClear()
     exe ":syntax clear " . t:vGTDSidebar_ConcealMatchGroupName
     set conceallevel=0
 endfunction
+"}}}
+"function! vGTDSidebar#AskToToggleDoneTask(sec){{{
+function! vGTDSidebar#AskToToggleDoneTask(second)
+    if str2nr(a:second) > 0
+        execute "sleep " . a:second
+    endif
+
+    if input("mark task done?[y]es, enter to cancel:") == "y"
+        call taskpaper#toggle_tag('done', taskpaper#date())
+    endif
+endfunction
+
 "}}}
 "function! vGTDSidebar#VGTD_RunPattern(){{{
 function! vGTDSidebar#VGTD_RunPattern()
@@ -457,7 +480,7 @@ function! vGTDSidebar#VGTD_startLog_viml()
 
     call taskpaper#add_tag('log', timestr)
 endfunction
-
+"}}}
 "function! vGTDSidebar#VGTD_startLog_python(){{{
 function! vGTDSidebar#VGTD_startLog_python(mode, ...)
 " if g:vGTDSidebar_Platform == "android"
@@ -526,9 +549,11 @@ function! vGTDSidebar#VGTD_stopLog()
 
     let ln = substitute(ln, pat, interval_f, '')
     call setline(".", ln)
-    if input("mark task done?[y]es, enter to cancel:") == "y"
-        call taskpaper#toggle_tag('done', taskpaper#date())
-    endif
+
+    call vGTDSidebar#AskToToggleDoneTask(0)
+    " if input("mark task done?[y]es, enter to cancel:") == "y"
+    "     call taskpaper#toggle_tag('done', taskpaper#date())
+    " endif
 
 endfunction
 "}}}
